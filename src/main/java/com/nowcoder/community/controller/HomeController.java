@@ -16,6 +16,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/*
+用于标记控制层类的注解，通常用于 Spring MVC 框架中。
+标记了 @Controller 的类会被 Spring 容器管理，并处理 HTTP 请求。
+ */
 @Controller
 public class HomeController {
 
