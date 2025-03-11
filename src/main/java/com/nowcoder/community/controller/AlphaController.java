@@ -1,6 +1,8 @@
 package com.nowcoder.community.controller;
 
+import com.nowcoder.community.service.AlphaService;
 import com.nowcoder.community.util.CommunityUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -18,12 +20,20 @@ import java.util.*;
 @RequestMapping("/alpha")
 public class AlphaController {
 
+    @Autowired
+    private AlphaService alphaService;
+
     @RequestMapping("/hello")
     @ResponseBody
     public String sayHello() {
         return "Hello Spring Boot.";
     }
 
+    @RequestMapping("/data")
+    @ResponseBody
+    public String getData() {
+        return alphaService.find();
+    }
 
     @RequestMapping("/http")
     public void http(HttpServletRequest request, HttpServletResponse response) {
@@ -142,7 +152,7 @@ public class AlphaController {
     @ResponseBody
     public String setCookie(HttpServletResponse response) {
         // 创建cookie
-        Cookie cookie = new Cookie("code", CommunityUtil.generateUUID().replace(" ", ""));
+        Cookie cookie = new Cookie("code", CommunityUtil.generateUUID());
         // 设置cookie生效的范围
         cookie.setPath("/community/alpha");
         // 设置cookie的生存时间
@@ -176,6 +186,15 @@ public class AlphaController {
         System.out.println(session.getAttribute("id"));
         System.out.println(session.getAttribute("name"));
         return "get session";
+    }
+
+    // ajax示例
+    @RequestMapping(path = "/ajax", method = RequestMethod.POST)
+    @ResponseBody
+    public String testAjax(String name, int age) {
+        System.out.println(name);
+        System.out.println(age);
+        return CommunityUtil.getJSONString(0, "操作成功!");
     }
 
 }
