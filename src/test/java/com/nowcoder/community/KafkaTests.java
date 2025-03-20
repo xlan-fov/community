@@ -50,7 +50,7 @@ class KafkaConsumer {
 
     @KafkaListener(topics = {"test"})
     public void handleMessage(ConsumerRecord record) {
-        System.out.println("~~~~~~~~~ -> :"+record.value());
+        System.out.println(record.value());
     }
 
 

@@ -12,6 +12,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest
 @ContextConfiguration(classes = CommunityApplication.class)
 public class LoggerTests {
+
     private static final Logger logger = LoggerFactory.getLogger(LoggerTests.class);
 
     @Test
@@ -23,4 +24,5 @@ public class LoggerTests {
         logger.warn("warn log");
         logger.error("error log");
     }
+
 }

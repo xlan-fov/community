@@ -3,6 +3,7 @@ package com.nowcoder.community.entity;
 import java.util.Date;
 
 public class DiscussPost {
+
     private int id;
     private int userId;
     private String title;
