@@ -11,6 +11,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 
+/**
+ * LoginRequiredInterceptor 拦截带 @LoginRequired 注解的请求，
+ * 未登录用户重定向至登录页面。
+ */
 @Component
 public class LoginRequiredInterceptor implements HandlerInterceptor {
 

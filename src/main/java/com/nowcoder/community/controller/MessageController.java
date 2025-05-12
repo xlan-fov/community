@@ -20,6 +20,9 @@ import org.springframework.web.util.HtmlUtils;
 
 import java.util.*;
 
+/**
+ * MessageController 处理私信列表/详情、发送私信及系统通知的展示与已读标记。
+ */
 @Controller
 public class MessageController implements CommunityConstant {
 
@@ -32,7 +35,7 @@ public class MessageController implements CommunityConstant {
     @Autowired
     private UserService userService;
 
-    // 私信列表
+    /** 私信会话列表 */
     @RequestMapping(path = "/letter/list", method = RequestMethod.GET)
     public String getLetterList(Model model, Page page) {
         User user = hostHolder.getUser();
@@ -68,6 +71,7 @@ public class MessageController implements CommunityConstant {
         return "/site/letter";
     }
 
+    /** 私信详情并标记已读 */
     @RequestMapping(path = "/letter/detail/{conversationId}", method = RequestMethod.GET)
     public String getLetterDetail(@PathVariable("conversationId") String conversationId, Page page, Model model) {
         // 分页信息
@@ -126,6 +130,7 @@ public class MessageController implements CommunityConstant {
         return ids;
     }
 
+    /** 发送私信接口(异步) */
     @RequestMapping(path = "/letter/send", method = RequestMethod.POST)
     @ResponseBody
     public String sendLetter(String toName, String content) {
@@ -149,6 +154,7 @@ public class MessageController implements CommunityConstant {
         return CommunityUtil.getJSONString(0);
     }
 
+    /** 通知列表 */
     @RequestMapping(path = "/notice/list", method = RequestMethod.GET)
     public String getNoticeList(Model model) {
         User user = hostHolder.getUser();
@@ -227,6 +233,7 @@ public class MessageController implements CommunityConstant {
         return "/site/notice";
     }
 
+    /** 通知详情并标记已读 */
     @RequestMapping(path = "/notice/detail/{topic}", method = RequestMethod.GET)
     public String getNoticeDetail(@PathVariable("topic") String topic, Page page, Model model) {
         User user = hostHolder.getUser();

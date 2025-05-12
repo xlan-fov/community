@@ -31,6 +31,7 @@ public class EventConsumer implements CommunityConstant {
             return;
         }
 
+        // 反序列化为Event，构造Message写入数据库
         Event event = JSONObject.parseObject(record.value().toString(), Event.class);
         if (event == null) {
             logger.error("消息格式错误!");

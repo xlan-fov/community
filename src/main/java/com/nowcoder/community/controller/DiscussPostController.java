@@ -21,6 +21,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.*;
 
+/**
+ * DiscussPostController 提供帖子发布与详情展示，
+ * 包括评论、回复及点赞状态的渲染。
+ */
 @Controller
 @RequestMapping("/discuss")
 public class DiscussPostController implements CommunityConstant {
@@ -40,6 +44,7 @@ public class DiscussPostController implements CommunityConstant {
     @Autowired
     private LikeService likeService;
 
+    /** 发布新帖子接口(需登录) */
     @RequestMapping(path = "/add", method = RequestMethod.POST)
     @ResponseBody
     public String addDiscussPost(String title, String content) {
@@ -59,6 +64,7 @@ public class DiscussPostController implements CommunityConstant {
         return CommunityUtil.getJSONString(0, "发布成功!");
     }
 
+    /** 帖子详情页面 */
     @RequestMapping(path = "/detail/{discussPostId}", method = RequestMethod.GET)
     public String getDiscussPost(@PathVariable("discussPostId") int discussPostId, Model model, Page page) {
         // 帖子
@@ -83,6 +89,20 @@ public class DiscussPostController implements CommunityConstant {
         // 评论: 给帖子的评论
         // 回复: 给评论的评论
         // 评论列表
+        //请求映射：处理GET请求/discuss/detail/{discussPostId}，其中{discussPostId}是帖子的ID。
+        //获取帖子详情：
+        //通过discussPostService.findDiscussPostById(discussPostId)获取帖子对象。
+        //获取帖子的作者信息。
+        //获取帖子的点赞数量和当前用户的点赞状态。
+        //评论分页：
+        //设置分页参数，包括每页显示的评论数、分页路径和总评论数。
+        //获取评论列表：
+        //调用commentService.findCommentsByEntity获取帖子的评论列表。
+        //遍历评论列表，为每个评论创建一个VO（View Object），包含评论本身、作者信息、点赞数量和状态。
+        //获取每个评论的回复列表，并为每个回复创建VO，包含回复本身、作者信息、目标用户、点赞数量和状态。
+        //返回视图：
+        //将帖子、作者、点赞信息、评论VO列表等数据添加到模型中。
+        //返回视图路径/site/discuss-detail，由Spring MVC渲染成HTML页面。
         List<Comment> commentList = commentService.findCommentsByEntity(
                 ENTITY_TYPE_POST, post.getId(), page.getOffset(), page.getLimit());
         // 评论VO列表
@@ -99,7 +119,7 @@ public class DiscussPostController implements CommunityConstant {
                 likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_COMMENT, comment.getId());
                 commentVo.put("likeCount", likeCount);
                 // 点赞状态
-                likeStatus = hostHolder.getUser() == null ? 0 :
+                int likeStatus = hostHolder.getUser() == null ? 0 :
                         likeService.findEntityLikeStatus(hostHolder.getUser().getId(), ENTITY_TYPE_COMMENT, comment.getId());
                 commentVo.put("likeStatus", likeStatus);
 

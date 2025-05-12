@@ -26,6 +26,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+/**
+ * UserController 提供账号设置、头像上传和个人主页展示功能。
+ */
 @Controller
 @RequestMapping("/user")
 public class UserController implements CommunityConstant {
@@ -53,12 +56,14 @@ public class UserController implements CommunityConstant {
     @Autowired
     private FollowService followService;
 
+    /** 获取账号设置页面(需登录) */
     @LoginRequired
     @RequestMapping(path = "/setting", method = RequestMethod.GET)
     public String getSettingPage() {
         return "/site/setting";
     }
 
+    /** 处理头像上传 */
     @LoginRequired
     @RequestMapping(path = "/upload", method = RequestMethod.POST)
     public String uploadHeader(MultipartFile headerImage, Model model) {
@@ -95,6 +100,7 @@ public class UserController implements CommunityConstant {
         return "redirect:/index";
     }
 
+    /** 读取并响应头像文件 */
     @RequestMapping(path = "/header/{fileName}", method = RequestMethod.GET)
     public void getHeader(@PathVariable("fileName") String fileName, HttpServletResponse response) {
         // 服务器存放路径
@@ -117,7 +123,7 @@ public class UserController implements CommunityConstant {
         }
     }
 
-    // 个人主页
+    /** 个人主页展示 */
     @RequestMapping(path = "/profile/{userId}", method = RequestMethod.GET)
     public String getProfilePage(@PathVariable("userId") int userId, Model model) {
         User user = userService.findUserById(userId);

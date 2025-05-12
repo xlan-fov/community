@@ -18,6 +18,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * HomeController 处理首页和错误页请求：
+ * - 首页 /index: 帖子列表 + 分页 + 点赞数量
+ * - 错误页 /error: 500 页面
+ */
 @Controller
 public class HomeController implements CommunityConstant {
 
@@ -30,25 +35,29 @@ public class HomeController implements CommunityConstant {
     @Autowired
     private LikeService likeService;
 
+    /**
+     * 处理首页请求，查询指定用户（统一用 0 表示所有用户）的帖子列表，
+     * 并查询帖子对应的作者与点赞数，支持 Page 分页。
+     */
     @RequestMapping(path = "/index", method = RequestMethod.GET)
     public String getIndexPage(Model model, Page page) {
-        // 方法调用钱,SpringMVC会自动实例化Model和Page,并将Page注入Model.
-        // 所以,在thymeleaf中可以直接访问Page对象中的数据.
+        // 1. 设置分页总行数和路径
         page.setRows(discussPostService.findDiscussPostRows(0));
         page.setPath("/index");
 
+        // 2. 查询当前页帖子列表
         List<DiscussPost> list = discussPostService.findDiscussPosts(0, page.getOffset(), page.getLimit());
         List<Map<String, Object>> discussPosts = new ArrayList<>();
         if (list != null) {
             for (DiscussPost post : list) {
                 Map<String, Object> map = new HashMap<>();
                 map.put("post", post);
+                // 查询作者信息
                 User user = userService.findUserById(post.getUserId());
                 map.put("user", user);
-
+                // 查询点赞数量
                 long likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_POST, post.getId());
                 map.put("likeCount", likeCount);
-
                 discussPosts.add(map);
             }
         }
@@ -56,6 +65,9 @@ public class HomeController implements CommunityConstant {
         return "/index";
     }
 
+    /**
+     * 处理服务器错误页
+     */
     @RequestMapping(path = "/error", method = RequestMethod.GET)
     public String getErrorPage() {
         return "/error/500";

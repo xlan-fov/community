@@ -9,6 +9,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+/**
+ * WebMvcConfig 用于注册各拦截器并配置静态资源排除路径。
+ */
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 

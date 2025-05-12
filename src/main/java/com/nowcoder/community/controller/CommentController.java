@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.Date;
 
+/**
+ * CommentController 处理帖子及评论的回复提交，并触发异步评论事件。
+ */
 @Controller
 @RequestMapping("/comment")
 public class CommentController implements CommunityConstant {
@@ -32,6 +35,7 @@ public class CommentController implements CommunityConstant {
     @Autowired
     private DiscussPostService discussPostService;
 
+    /** 添加评论并触发事件 */
     @RequestMapping(path = "/add/{discussPostId}", method = RequestMethod.POST)
     public String addComment(@PathVariable("discussPostId") int discussPostId, Comment comment) {
         comment.setUserId(hostHolder.getUser().getId());

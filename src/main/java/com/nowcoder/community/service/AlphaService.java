@@ -21,8 +21,12 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.Date;
 
+/**
+ * AlphaService 用于演示 Spring 事务管理的两种方式：
+ * 1. 注解式（@Transactional） 
+ * 2. 编程式（TransactionTemplate）
+ */
 @Service
-//@Scope("prototype")
 public class AlphaService {
 
     @Autowired
@@ -55,9 +59,14 @@ public class AlphaService {
         return alphaDao.select();
     }
 
-    // REQUIRED: 支持当前事务(外部事务),如果不存在则创建新事务.
-    // REQUIRES_NEW: 创建一个新事务,并且暂停当前事务(外部事务).
-    // NESTED: 如果当前存在事务(外部事务),则嵌套在该事务中执行(独立的提交和回滚),否则就会REQUIRED一样.
+    /**
+     * 使用注解的方式管理事务：
+     * - isolation = READ_COMMITTED: 可读已提交 
+     * - propagation = REQUIRED: 支持当前事务，若不存在则新建
+     *
+     * @return 操作结果，正常情况下返回 "ok"
+     * @throws RuntimeException 当插入后触发转换异常时自动回滚
+     */
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public Object save1() {
         // 新增用户
@@ -78,11 +87,16 @@ public class AlphaService {
         post.setCreateTime(new Date());
         discussPostMapper.insertDiscussPost(post);
 
+        // 人为制造异常，验证事务回滚
         Integer.valueOf("abc");
 
         return "ok";
     }
 
+    /**
+     * 使用 TransactionTemplate 编程式事务：
+     * 设置与 save1 相同的隔离级别和传播行为
+     */
     public Object save2() {
         transactionTemplate.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
         transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
@@ -108,6 +122,7 @@ public class AlphaService {
                 post.setCreateTime(new Date());
                 discussPostMapper.insertDiscussPost(post);
 
+                // 人为异常
                 Integer.valueOf("abc");
 
                 return "ok";

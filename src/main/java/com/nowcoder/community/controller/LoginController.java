@@ -29,6 +29,9 @@ import java.io.OutputStream;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * LoginController 处理用户注册、激活、登录、验证码生成及登出逻辑。
+ */
 @Controller
 public class LoginController implements CommunityConstant {
 
@@ -46,16 +49,19 @@ public class LoginController implements CommunityConstant {
     @Autowired
     private RedisTemplate redisTemplate;
 
+    /** 返回注册页面 */
     @RequestMapping(path = "/register", method = RequestMethod.GET)
     public String getRegisterPage() {
         return "/site/register";
     }
 
+    /** 返回登录页面 */
     @RequestMapping(path = "/login", method = RequestMethod.GET)
     public String getLoginPage() {
         return "/site/login";
     }
 
+    /** 处理注册表单提交 */
     @RequestMapping(path = "/register", method = RequestMethod.POST)
     public String register(Model model, User user) {
         Map<String, Object> map = userService.register(user);
@@ -71,7 +77,7 @@ public class LoginController implements CommunityConstant {
         }
     }
 
-    // http://localhost:8080/community/activation/101/code
+    /** 处理账号激活 */
     @RequestMapping(path = "/activation/{userId}/{code}", method = RequestMethod.GET)
     public String activation(Model model, @PathVariable("userId") int userId, @PathVariable("code") String code) {
         int result = userService.activation(userId, code);
@@ -88,6 +94,7 @@ public class LoginController implements CommunityConstant {
         return "/site/operate-result";
     }
 
+    /** 生成验证码并写入Redis */
     @RequestMapping(path = "/kaptcha", method = RequestMethod.GET)
     public void getKaptcha(HttpServletResponse response/*, HttpSession session*/) {
         // 生成验证码
@@ -117,6 +124,7 @@ public class LoginController implements CommunityConstant {
         }
     }
 
+    /** 处理登录表单提交 */
     @RequestMapping(path = "/login", method = RequestMethod.POST)
     public String login(String username, String password, String code, boolean rememberme,
                         Model model, /*HttpSession session, */HttpServletResponse response,
@@ -150,6 +158,7 @@ public class LoginController implements CommunityConstant {
         }
     }
 
+    /** 处理登出请求 */
     @RequestMapping(path = "/logout", method = RequestMethod.GET)
     public String logout(@CookieValue("ticket") String ticket) {
         userService.logout(ticket);

@@ -5,6 +5,9 @@ import org.springframework.context.annotation.Configuration;
 
 import java.text.SimpleDateFormat;
 
+/**
+ * AlphaConfig 定义全局Bean，例如SimpleDateFormat。
+ */
 @Configuration
 public class AlphaConfig {
 

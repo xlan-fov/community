@@ -22,6 +22,10 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * UserService 负责用户注册、激活、登录、退出以及头像更新等功能。
+ * 使用 Redis 缓存登录凭证和用户信息，提升性能。
+ */
 @Service
 public class UserService implements CommunityConstant {
 
@@ -46,15 +50,32 @@ public class UserService implements CommunityConstant {
     @Autowired
     private RedisTemplate redisTemplate;
 
+    /**
+     * 根据用户 ID 查询用户，优先从缓存读取，若不存在则初始化缓存。
+     *
+     * @param id 用户ID
+     * @return User 实体或 null
+     */
     public User findUserById(int id) {
-//        return userMapper.selectById(id);
+        // 1. 尝试从Redis缓存读取
         User user = getCache(id);
         if (user == null) {
+            // 2. 缓存不存在则从 DB 读取并写入Redis
             user = initCache(id);
         }
         return user;
     }
 
+    /**
+     * 注册新用户：
+     * 1. 参数校验 
+     * 2. 用户名、邮箱是否重复 
+     * 3. 加密密码、设置默认属性 
+     * 4. 入库并发送激活邮件
+     *
+     * @param user 封装注册信息的 User 对象
+     * @return 包含校验错误消息的 Map，成功时为空
+     */
     public Map<String, Object> register(User user) {
         Map<String, Object> map = new HashMap<>();
 
@@ -100,6 +121,9 @@ public class UserService implements CommunityConstant {
         userMapper.insertUser(user);
 
         // 激活邮件
+        //创建一个上下文对象并设置需要的变量（用户邮箱和激活链接）。
+        //使用模板引擎生成邮件内容。
+        //通过邮件客户端发送激活邮件给用户。
         Context context = new Context();
         context.setVariable("email", user.getEmail());
         // http://localhost:8080/community/activation/101/code
@@ -111,6 +135,16 @@ public class UserService implements CommunityConstant {
         return map;
     }
 
+    /**
+     * 激活账号：
+     * - 已激活返回 ACTIVATION_REPEAT
+     * - 激活码匹配返回 ACTIVATION_SUCCESS 并更新状态
+     * - 激活码错误返回 ACTIVATION_FAILURE
+     *
+     * @param userId  用户ID
+     * @param code    激活码
+     * @return 激活结果常量
+     */
     public int activation(int userId, String code) {
         User user = userMapper.selectById(userId);
         if (user.getStatus() == 1) {
@@ -124,6 +158,16 @@ public class UserService implements CommunityConstant {
         }
     }
 
+    /**
+     * 登录：
+     * 1. 校验账号、密码、激活状态 
+     * 2. 生成登录凭证并存入 Redis
+     *
+     * @param username        用户名
+     * @param password        原始密码
+     * @param expiredSeconds  凭证过期秒数
+     * @return 包含 ticket 或错误消息的 Map
+     */
     public Map<String, Object> login(String username, String password, int expiredSeconds) {
         Map<String, Object> map = new HashMap<>();
 
@@ -172,8 +216,15 @@ public class UserService implements CommunityConstant {
         return map;
     }
 
+    /**
+     * 注销登录：
+     * 将 Redis 中的登录凭证状态设为无效
+     *
+     * @param ticket 登录凭证
+     */
     public void logout(String ticket) {
 //        loginTicketMapper.updateStatus(ticket, 1);
+        //'0-有效; 1-无效;'
         String redisKey = RedisKeyUtil.getTicketKey(ticket);
         LoginTicket loginTicket = (LoginTicket) redisTemplate.opsForValue().get(redisKey);
         loginTicket.setStatus(1);
@@ -207,6 +258,7 @@ public class UserService implements CommunityConstant {
     private User initCache(int userId) {
         User user = userMapper.selectById(userId);
         String redisKey = RedisKeyUtil.getUserKey(userId);
+        // 存入Redis，1小时过期
         redisTemplate.opsForValue().set(redisKey, user, 3600, TimeUnit.SECONDS);
         return user;
     }

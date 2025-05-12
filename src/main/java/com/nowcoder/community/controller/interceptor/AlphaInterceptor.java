@@ -9,6 +9,10 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * AlphaInterceptor 用于测试拦截器执行顺序，
+ * 打印 preHandle/postHandle/afterCompletion 日志。
+ */
 @Component
 public class AlphaInterceptor implements HandlerInterceptor {
 
